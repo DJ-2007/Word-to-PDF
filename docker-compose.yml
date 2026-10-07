@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  convertly-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: convertly_app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - MAX_FREE_FILE_SIZE=52428800
+      - MAX_BATCH_FILES=20
+      - FILE_RETENTION_HOURS=24
+      - RATE_LIMIT_PER_MINUTE=30
+    volumes:
+      - convertly_temp_data:/app/.temp_storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/tools"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  convertly_temp_data:
+    driver: local
